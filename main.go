@@ -17,18 +17,23 @@ import (
 	"sync"
 )
 
+// {{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap is a thread-safe map mapping from
+// {{ .TypeKey }} to {{ .TypeValue }}.
 type {{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap struct {
 	m    map[{{.TypeKey}}]{{.TypeValue}}
 	lock sync.RWMutex
 }
 
-func New{{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap() *{{.TypeKey}}2{{.TypeValue}}SafeMap {
-	return &{{.TypeKey}}2{{.TypeValue}}SafeMap{
+// New{{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap() returns a new
+// {{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap.
+func New{{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap() *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap {
+	return &{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap{
 		m: make(map[{{.TypeKey}}]{{.TypeValue}}),
 	}
 
 }
 
+// Get returns a point of {{.TypeValue}}, it returns nil if not found.
 func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Get(k {{.TypeKey}}) *{{.TypeValue}} {
 	s.lock.RLock()
 	v, ok := s.m[k]
@@ -39,12 +44,14 @@ func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Get(k 
 	return &v
 }
 
+// Set sets value v to key k in the map.
 func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Set(k {{.TypeKey}}, v {{.TypeValue}}) {
 	s.lock.Lock()
 	s.m[k] = v
 	s.lock.Unlock()
 }
 
+// Update updates value v to key k, returns false if k not found.
 func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Update(k {{.TypeKey}}, v {{.TypeValue}}) bool {
 	s.lock.Lock()
 	_, ok := s.m[k]
@@ -57,12 +64,14 @@ func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Update
 	return true
 }
 
+// Delete deletes a key in the map.
 func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Delete(k {{.TypeKey}}) {
 	s.lock.Lock()
 	delete(s.m, k)
 	s.lock.Unlock()
 }
 
+// Dup duplicates the map to a new struct.
 func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Dup() *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap {
 	newMap := New{{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap()
 	s.lock.Lock()

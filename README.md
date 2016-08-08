@@ -19,25 +19,3 @@ type TypeKey string
 type TypeValue string
 
 ```
-
-## apis
-
-1. New{{.TypeKey}}2{{.TypeValue}}SafeMap
-
-       New{{.TypeKey}}2{{.TypeValue}}SafeMap returns a new map.
-
-2. {{.TypeKey}}2{{.TypeValue}}SafeMap.Get(k {{.TypeKey}}) \*{{.TypeValue}}
-
-       Get returns a point of {{.TypeValue}}, it returns nil if not found.
-
-3. {{.TypeKey}}2{{.TypeValue}}SafeMap.Set(k {{.TypeKey}}, v {{.TypeValue}})
-
-       Set sets value v to key k in the map.
-
-3. {{.TypeKey}}2{{.TypeValue}}SafeMap.Update(k {{.TypeKey}}, v {{.TypeValue}}) bool
-
-       Update updates value v to key k, returns false if k not found.
-
-4. {{.TypeKey}}2{{.TypeValue}}SafeMap.Delete(k {{.TypeKey}})
-
-       Delete deletes a key in the map.
