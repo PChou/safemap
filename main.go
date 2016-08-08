@@ -17,19 +17,19 @@ import (
 	"sync"
 )
 
-type {{.TypeKey}}2{{.TypeValue}}SafeMap struct {
+type {{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap struct {
 	m    map[{{.TypeKey}}]{{.TypeValue}}
 	lock sync.RWMutex
 }
 
-func New{{.TypeKey}}2{{.TypeValue}}SafeMap() *{{.TypeKey}}2{{.TypeValue}}SafeMap {
+func New{{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap() *{{.TypeKey}}2{{.TypeValue}}SafeMap {
 	return &{{.TypeKey}}2{{.TypeValue}}SafeMap{
 		m: make(map[{{.TypeKey}}]{{.TypeValue}}),
 	}
 
 }
 
-func (s *{{.TypeKey}}2{{.TypeValue}}SafeMap) Get(k {{.TypeKey}}) *{{.TypeValue}} {
+func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Get(k {{.TypeKey}}) *{{.TypeValue}} {
 	s.lock.RLock()
 	v, ok := s.m[k]
 	s.lock.RUnlock()
@@ -39,13 +39,13 @@ func (s *{{.TypeKey}}2{{.TypeValue}}SafeMap) Get(k {{.TypeKey}}) *{{.TypeValue}}
 	return &v
 }
 
-func (s *{{.TypeKey}}2{{.TypeValue}}SafeMap) Set(k {{.TypeKey}}, v {{.TypeValue}}) {
+func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Set(k {{.TypeKey}}, v {{.TypeValue}}) {
 	s.lock.Lock()
 	s.m[k] = v
 	s.lock.Unlock()
 }
 
-func (s *{{.TypeKey}}2{{.TypeValue}}SafeMap) Update(k {{.TypeKey}}, v {{.TypeValue}}) bool {
+func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Update(k {{.TypeKey}}, v {{.TypeValue}}) bool {
 	s.lock.Lock()
 	_, ok := s.m[k]
 	if !ok {
@@ -57,7 +57,7 @@ func (s *{{.TypeKey}}2{{.TypeValue}}SafeMap) Update(k {{.TypeKey}}, v {{.TypeVal
 	return true
 }
 
-func (s *{{.TypeKey}}2{{.TypeValue}}SafeMap) Delete(k {{.TypeKey}}) {
+func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Delete(k {{.TypeKey}}) {
 	s.lock.Lock()
 	delete(s.m, k)
 	s.lock.Unlock()
@@ -66,6 +66,51 @@ func (s *{{.TypeKey}}2{{.TypeValue}}SafeMap) Delete(k {{.TypeKey}}) {
 func fatal(v ...interface{}) {
 	fmt.Fprintln(os.Stderr, v...)
 	os.Exit(1)
+}
+
+func builtinType2UCapital(s string) string {
+	switch s {
+	case "bool":
+		return "Bool"
+	case "uint8":
+		return "Uint8"
+	case "uint16":
+		return "Uint16"
+	case "uint32":
+		return "Uint32"
+	case "uint64":
+		return "Uint64"
+	case "int8":
+		return "Int8"
+	case "int16":
+		return "Int16"
+	case "int32":
+		return "Int32"
+	case "int64":
+		return "Int64"
+	case "float32":
+		return "Float32"
+	case "float64":
+		return "Float64"
+	case "complex64":
+		return "Complex64"
+	case "complex128":
+		return "Complex128"
+	case "byte":
+		return "Byte"
+	case "rune":
+		return "Rune"
+	case "uint":
+		return "Uint"
+	case "int":
+		return "Int"
+	case "uintptr":
+		return "Uintptr"
+	case "string":
+		return "String"
+	default:
+		return s
+	}
 }
 
 func main() {
@@ -99,10 +144,11 @@ func main() {
 		fatal(err)
 	}
 	defer f.Close()
-	err = tpl.Execute(f, map[string]string{
-		"TypeKey":     *keyType,
-		"TypeValue":   *valueType,
-		"packageName": packageName,
+	err = tpl.Execute(f, map[string]interface{}{
+		"TypeKey":              *keyType,
+		"TypeValue":            *valueType,
+		"builtinType2UCapital": builtinType2UCapital,
+		"packageName":          packageName,
 	})
 	if err != nil {
 		fatal(err)
