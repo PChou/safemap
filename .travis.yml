@@ -1,0 +1,11 @@
+language: go
+
+go:
+  - 1.6
+  - tip
+
+before_script: 
+  - go generate
+
+script:
+  - go test -v
