@@ -61,6 +61,16 @@ func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Delete
 	s.lock.Lock()
 	delete(s.m, k)
 	s.lock.Unlock()
+}
+
+func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Dup() *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap {
+	newMap := New{{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap()
+	s.lock.Lock()
+	for k, v := range s.m {
+		newMap.m[k] = v
+	}
+	s.lock.Unlock()
+	return newMap
 }`
 
 func fatal(v ...interface{}) {

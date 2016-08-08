@@ -15,6 +15,11 @@ func TestMap(t *testing.T) {
 	if *v != TypeValue("v") {
 		t.Fatalf("get %s\n", *v)
 	}
+	dupMap := m.Dup()
+	v = dupMap.Get(TypeKey("k"))
+	if *v != TypeValue("v") {
+		t.Fatalf("get %s\n", *v)
+	}
 	m.Update(TypeKey("k"), TypeValue("v2"))
 	v = m.Get(TypeKey("k"))
 	if *v != TypeValue("v2") {
