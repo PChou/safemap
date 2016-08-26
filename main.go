@@ -1,4 +1,6 @@
 // Package safemap is a package used to generate thread-safe map for general purpose.
+// Run safemap -k -v will generate a K2V_safemap.go for map implementation code,
+// and run go doc you can get document of it.
 package main
 
 import (
@@ -11,8 +13,9 @@ import (
 	"text/template"
 )
 
-var safeMapTemplate = `// Automatically generated file; DO NOT EDIT
-package {{.packageName}}
+var safeMapTemplate = `package {{.packageName}}
+
+// Automatically generated file; DO NOT EDIT
 
 import (
 	"sync"
@@ -25,7 +28,7 @@ type {{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap struct {
 	lock sync.RWMutex
 }
 
-// New{{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap() returns a new
+// New{{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap returns a new
 // {{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap.
 func New{{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap() *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap {
 	return &{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap{
@@ -107,12 +110,9 @@ func main() {
 	if err != nil {
 		fatal(err)
 	}
-	var packageName string
+	packageName := "main"
 	for name := range pkgs {
 		packageName = name
-	}
-	if packageName == "" {
-		fatal("no package found")
 	}
 	f, err := os.OpenFile(fmt.Sprintf("%s2%s_safemap.go", *keyType, *valueType), os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
