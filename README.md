@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/ggaaooppeenngg/safemap.svg?branch=master)](https://travis-ci.org/ggaaooppeenngg/safemap)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ggaaooppeenngg/safemap)](https://goreportcard.com/report/github.com/ggaaooppeenngg/safemap)
 [![codecov](https://codecov.io/gh/ggaaooppeenngg/safemap/branch/master/graph/badge.svg)](https://codecov.io/gh/ggaaooppeenngg/safemap)
+[![GoDoc](https://godoc.org/github.com/ggaaooppeenngg/safemap?status.svg)](https://godoc.org/github.com/ggaaooppeenngg/safemap)
 
 
 ## safemap
