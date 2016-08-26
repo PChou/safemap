@@ -7,6 +7,7 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -87,51 +88,6 @@ func fatal(v ...interface{}) {
 	os.Exit(1)
 }
 
-func builtinType2UCapital(s string) string {
-	switch s {
-	case "bool":
-		return "Bool"
-	case "uint8":
-		return "Uint8"
-	case "uint16":
-		return "Uint16"
-	case "uint32":
-		return "Uint32"
-	case "uint64":
-		return "Uint64"
-	case "int8":
-		return "Int8"
-	case "int16":
-		return "Int16"
-	case "int32":
-		return "Int32"
-	case "int64":
-		return "Int64"
-	case "float32":
-		return "Float32"
-	case "float64":
-		return "Float64"
-	case "complex64":
-		return "Complex64"
-	case "complex128":
-		return "Complex128"
-	case "byte":
-		return "Byte"
-	case "rune":
-		return "Rune"
-	case "uint":
-		return "Uint"
-	case "int":
-		return "Int"
-	case "uintptr":
-		return "Uintptr"
-	case "string":
-		return "String"
-	default:
-		return s
-	}
-}
-
 func main() {
 	keyType := flag.String("k", "", "key type")
 	valueType := flag.String("v", "", "value type")
@@ -166,7 +122,7 @@ func main() {
 	err = tpl.Execute(f, map[string]interface{}{
 		"TypeKey":              *keyType,
 		"TypeValue":            *valueType,
-		"builtinType2UCapital": builtinType2UCapital,
+		"builtinType2UCapital": strings.Title,
 		"packageName":          packageName,
 	})
 	if err != nil {
