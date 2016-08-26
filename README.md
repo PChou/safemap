@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/ggaaooppeenngg/safemap.svg?branch=master)](https://travis-ci.org/ggaaooppeenngg/safemap)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ggaaooppeenngg/safemap)](https://goreportcard.com/report/github.com/ggaaooppeenngg/safemap)
 
 ## safemap
 An auto-generated thread-safe map package written in golang.
