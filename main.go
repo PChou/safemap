@@ -21,42 +21,42 @@ import (
 	"sync"
 )
 
-// {{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap is a thread-safe map mapping from
+// {{ .Namespace }}SafeMap is a thread-safe map mapping from
 // {{ .TypeKey }} to {{ .TypeValue }}.
-type {{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap struct {
+type {{ .Namespace }}SafeMap struct {
 	m    map[{{.TypeKey}}]{{.TypeValue}}
 	lock sync.RWMutex
 }
 
-// New{{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap returns a new
-// {{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap.
-func New{{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap() *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap {
-	return &{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap{
-		m: make(map[{{.TypeKey}}]{{.TypeValue}}),
+// New{{ .Namespace }}SafeMap returns a new
+// {{ .Namespace }}SafeMap.
+func New{{ .Namespace }}SafeMap(m map[{{.TypeKey}}]{{.TypeValue}}) *{{ .Namespace }}SafeMap {
+	if m == nil {
+		m = make(map[{{.TypeKey}}]{{.TypeValue}})
+	}
+	return &{{ .Namespace }}SafeMap{
+		m: m,
 	}
 
 }
 
 // Get returns a point of {{.TypeValue}}, it returns nil if not found.
-func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Get(k {{.TypeKey}}) *{{.TypeValue}} {
+func (s *{{ .Namespace }}SafeMap) Get(k {{.TypeKey}}) ({{.TypeValue}}, bool) {
 	s.lock.RLock()
 	v, ok := s.m[k]
 	s.lock.RUnlock()
-	if !ok {
-		return nil
-	}
-	return &v
+	return v, ok
 }
 
 // Set sets value v to key k in the map.
-func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Set(k {{.TypeKey}}, v {{.TypeValue}}) {
+func (s *{{ .Namespace }}SafeMap) Set(k {{.TypeKey}}, v {{.TypeValue}}) {
 	s.lock.Lock()
 	s.m[k] = v
 	s.lock.Unlock()
 }
 
 // Update updates value v to key k, returns false if k not found.
-func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Update(k {{.TypeKey}}, v {{.TypeValue}}) bool {
+func (s *{{ .Namespace }}SafeMap) Update(k {{.TypeKey}}, v {{.TypeValue}}) bool {
 	s.lock.Lock()
 	_, ok := s.m[k]
 	if !ok {
@@ -69,15 +69,15 @@ func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Update
 }
 
 // Delete deletes a key in the map.
-func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Delete(k {{.TypeKey}}) {
+func (s *{{ .Namespace }}SafeMap) Delete(k {{.TypeKey}}) {
 	s.lock.Lock()
 	delete(s.m, k)
 	s.lock.Unlock()
 }
 
 // Dup duplicates the map to a new struct.
-func (s *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap) Dup() *{{ call .builtinType2UCapital .TypeKey }}2{{.TypeValue}}SafeMap {
-	newMap := New{{ call .builtinType2UCapital .TypeKey}}2{{.TypeValue}}SafeMap()
+func (s *{{ .Namespace }}SafeMap) Dup() *{{ .Namespace }}SafeMap {
+	newMap := New{{ .Namespace }}SafeMap(nil)
 	s.lock.Lock()
 	for k, v := range s.m {
 		newMap.m[k] = v
@@ -94,6 +94,7 @@ func fatal(v ...interface{}) {
 func main() {
 	keyType := flag.String("k", "", "key type")
 	valueType := flag.String("v", "", "value type")
+	nameSpace := flag.String("n", "", "namespace")
 	flag.Parse()
 	if *keyType == "" {
 		fatal("key empty")
@@ -114,16 +115,20 @@ func main() {
 	for name := range pkgs {
 		packageName = name
 	}
-	f, err := os.OpenFile(fmt.Sprintf("%s2%s_safemap.go", *keyType, *valueType), os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0644)
+	if *nameSpace == "" {
+		*nameSpace = fmt.Sprintf("%s2%s", strings.Title(*keyType), *valueType) // TODO: only title builtin types
+	}
+	f, err := os.OpenFile(strings.ToLower(fmt.Sprintf("%s_safemap.go", *nameSpace)), os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		fatal(err)
 	}
 	defer f.Close()
+
 	err = tpl.Execute(f, map[string]interface{}{
-		"TypeKey":              *keyType,
-		"TypeValue":            *valueType,
-		"builtinType2UCapital": strings.Title,
-		"packageName":          packageName,
+		"TypeKey":     *keyType,
+		"TypeValue":   *valueType,
+		"Namespace":   *nameSpace,
+		"packageName": packageName,
 	})
 	if err != nil {
 		fatal(err)
