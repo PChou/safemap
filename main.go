@@ -1,6 +1,7 @@
 // Package safemap is a package used to generate thread-safe map for general purpose.
-// Run safemap -k -v will generate a K2V_safemap.go for map implementation code,
-// and run go doc you can get document of it.
+// Run safemap -k K -v V will generate a K2VSafeMap in K2V_safemap.go for map implementation code,
+// to avoid conflicts you can use -n to specify a namespace to generate a namespaceSafeMap in
+// namespace_safemap.go. and run go doc you can get document of it.
 package main
 
 import (
@@ -13,7 +14,7 @@ import (
 	"text/template"
 )
 
-var safeMapTemplate = `package {{.packageName}}
+var safeMapTemplate = `package {{.PackageName}}
 
 // Automatically generated file; DO NOT EDIT
 
@@ -21,15 +22,13 @@ import (
 	"sync"
 )
 
-// {{ .Namespace }}SafeMap is a thread-safe map mapping from
-// {{ .TypeKey }} to {{ .TypeValue }}.
+// {{ .Namespace }}SafeMap is a thread-safe map mapping from {{ .TypeKey }} to {{ .TypeValue }}.
 type {{ .Namespace }}SafeMap struct {
 	m    map[{{.TypeKey}}]{{.TypeValue}}
 	lock sync.RWMutex
 }
 
-// New{{ .Namespace }}SafeMap returns a new
-// {{ .Namespace }}SafeMap.
+// New{{ .Namespace }}SafeMap returns a new {{ .Namespace }}SafeMap.
 func New{{ .Namespace }}SafeMap(m map[{{.TypeKey}}]{{.TypeValue}}) *{{ .Namespace }}SafeMap {
 	if m == nil {
 		m = make(map[{{.TypeKey}}]{{.TypeValue}})
@@ -92,15 +91,28 @@ func fatal(v ...interface{}) {
 }
 
 func main() {
-	keyType := flag.String("k", "", "key type")
-	valueType := flag.String("v", "", "value type")
-	nameSpace := flag.String("n", "", "namespace")
+	var (
+		// flags
+		keyType   string
+		valueType string
+		nameSpace string
+
+		// default package name is main
+		packageName = "main"
+	)
+	flag.StringVar(&keyType, "k", "", "key type")
+	flag.StringVar(&valueType, "v", "", "value type")
+	flag.StringVar(&nameSpace, "n", "", "namespace")
 	flag.Parse()
-	if *keyType == "" {
+	// initiiate paramaters
+	if keyType == "" {
 		fatal("key empty")
 	}
-	if *valueType == "" {
+	if valueType == "" {
 		fatal("value empty")
+	}
+	if nameSpace == "" {
+		nameSpace = fmt.Sprintf("%s2%s", keyType, valueType)
 	}
 	tpl, err := template.New("safemap").Parse(safeMapTemplate)
 	if err != nil {
@@ -111,24 +123,23 @@ func main() {
 	if err != nil {
 		fatal(err)
 	}
-	packageName := "main"
 	for name := range pkgs {
-		packageName = name
+		if name != "" {
+			packageName = name
+			break
+		}
 	}
-	if *nameSpace == "" {
-		*nameSpace = fmt.Sprintf("%s2%s", strings.Title(*keyType), *valueType) // TODO: only title builtin types
-	}
-	f, err := os.OpenFile(strings.ToLower(fmt.Sprintf("%s_safemap.go", *nameSpace)), os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0644)
+	f, err := os.OpenFile(strings.ToLower(fmt.Sprintf("%s_safemap.go", strings.ToLower(nameSpace))), os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		fatal(err)
 	}
 	defer f.Close()
 
 	err = tpl.Execute(f, map[string]interface{}{
-		"TypeKey":     *keyType,
-		"TypeValue":   *valueType,
-		"Namespace":   *nameSpace,
-		"packageName": packageName,
+		"TypeKey":     keyType,
+		"TypeValue":   valueType,
+		"Namespace":   nameSpace,
+		"PackageName": packageName,
 	})
 	if err != nil {
 		fatal(err)
