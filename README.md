@@ -1,4 +1,4 @@
-[![Build Status](https://drone.io/github.com/ggaaooppeenngg/safemap/status.png)](https://drone.io/github.com/ggaaooppeenngg/safemap/latest)
+[![Build Status](https://travis-ci.org/ggaaooppeenngg/safemap.svg?branch=master)](https://travis-ci.org/ggaaooppeenngg/safemap)
 [![Coverage Status](https://coveralls.io/repos/github/ggaaooppeenngg/safemap/badge.svg)](https://coveralls.io/github/ggaaooppeenngg/safemap)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ggaaooppeenngg/safemap)](https://goreportcard.com/report/github.com/ggaaooppeenngg/safemap)
 [![GoDoc](https://godoc.org/github.com/ggaaooppeenngg/safemap?status.svg)](https://godoc.org/github.com/ggaaooppeenngg/safemap)
