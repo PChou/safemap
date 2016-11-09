@@ -24,3 +24,8 @@ type TypeKey string
 type TypeValue string
 
 ```
+or
+```
+//go:generate safemap -k string -v TypeValue -n prefix
+type TypeValue string
+```
