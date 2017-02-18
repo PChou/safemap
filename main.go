@@ -10,6 +10,7 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	"sort"
 	"strings"
 	"text/template"
 )
@@ -19,7 +20,7 @@ var safeMapTemplate = `package {{.PackageName}}
 // Automatically generated file; DO NOT EDIT
 
 import (
-	"sync"
+	"sync"{{ .Imports }}
 )
 
 // {{ .Namespace }}SafeMap is a thread-safe map mapping from {{ .TypeKey }} to {{ .TypeValue }}.
@@ -90,12 +91,29 @@ func fatal(v ...interface{}) {
 	os.Exit(1)
 }
 
+func formatImports(imports string) string {
+	if imports != "" {
+		importedPackages := strings.Split(imports, ",")
+		sort.Strings(importedPackages)
+		for i, s := range importedPackages {
+			// wrap package with quote
+			importedPackages[i] = "\"" + s + "\""
+		}
+		imports = strings.Join(importedPackages, "\n\t")
+		if len(imports) > 0 {
+			imports = "\n\n\t" + imports
+		}
+	}
+	return imports
+}
+
 func main() {
 	var (
 		// flags
 		keyType   string
 		valueType string
 		nameSpace string
+		imports   string
 
 		// default package name is main
 		packageName = "main"
@@ -103,6 +121,7 @@ func main() {
 	flag.StringVar(&keyType, "k", "", "key type")
 	flag.StringVar(&valueType, "v", "", "value type")
 	flag.StringVar(&nameSpace, "n", "", "namespace")
+	flag.StringVar(&imports, "i", "", "imported packages, comma seperated")
 	flag.Parse()
 	// initiiate paramaters
 	if keyType == "" {
@@ -134,12 +153,13 @@ func main() {
 		fatal(err)
 	}
 	defer f.Close()
-
+	imports = formatImports(imports)
 	err = tpl.Execute(f, map[string]interface{}{
 		"TypeKey":     keyType,
 		"TypeValue":   valueType,
 		"Namespace":   nameSpace,
 		"PackageName": packageName,
+		"Imports":     imports,
 	})
 	if err != nil {
 		fatal(err)
