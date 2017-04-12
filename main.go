@@ -84,6 +84,10 @@ func (s *{{ .Namespace }}SafeMap) Dup() *{{ .Namespace }}SafeMap {
 	}
 	s.lock.Unlock()
 	return newMap
+}
+
+func (s *{{ .Namespace }}SafeMap) GetMap() map[{{.TypeKey}}]{{.TypeValue}} {
+	return s.m
 }`
 
 func fatal(v ...interface{}) {
